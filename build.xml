@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="JavaPrac" default="create-tables" basedir=".">
+
+    <description>Сборка проекта библиотеки. Создание БД и таблиц PostgreSQL.</description>
+
+    <property name="db.host" value="localhost"/>
+    <property name="db.port" value="5432"/>
+    <property name="db.name" value="library"/>
+    <property name="db.user" value="postgres"/>
+    <property name="script.dir" value="${basedir}/src/database/postgres/create_scripts"/>
+
+    <target name="init" description="Подготовка каталогов">
+        <mkdir dir="${basedir}/build"/>
+        <mkdir dir="${basedir}/dist"/>
+    </target>
+
+    <target name="create-database" description="Создать БД library (psql от имени postgres)">
+        <exec executable="psql" failonerror="true">
+            <arg value="-U"/>
+            <arg value="${db.user}"/>
+            <arg value="-h"/>
+            <arg value="${db.host}"/>
+            <arg value="-p"/>
+            <arg value="${db.port}"/>
+            <arg value="-f"/>
+            <arg value="${script.dir}/00_create_database.sql"/>
+        </exec>
+        <echo message="База ${db.name} создана. Выполните: ant create-tables"/>
+    </target>
+
+    <target name="create-tables" description="Выполнить скрипт создания таблиц в БД library">
+        <exec executable="psql" failonerror="true">
+            <arg value="-U"/>
+            <arg value="${db.user}"/>
+            <arg value="-h"/>
+            <arg value="${db.host}"/>
+            <arg value="-p"/>
+            <arg value="${db.port}"/>
+            <arg value="-d"/>
+            <arg value="${db.name}"/>
+            <arg value="-f"/>
+            <arg value="${script.dir}/01_create_tables.sql"/>
+        </exec>
+        <echo message="Таблицы в ${db.name} созданы."/>
+    </target>
+
+    <target name="setup-db" depends="create-database, create-tables" description="Создать БД и все таблицы"/>
+
+</project>
